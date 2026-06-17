@@ -19,21 +19,21 @@ Account balances are persisted in `data/accounts.txt` and survive server restart
                               flock() + accounts.txt
 ```
 
-## Course concepts (`examples/`)
+## Course concepts
 
-### 1. TCP sockets — `klient.c`, `serwer.c`
+### 1. TCP sockets
 
-| Function | Example | Usage in project |
-|----------|---------|------------------|
-| `socket(AF_INET, SOCK_STREAM, 0)` | `klient.c`, `serwer.c` | Create TCP socket |
-| `connect()` | `klient.c` | Client connects to server |
-| `bind()`, `listen()`, `accept()` | `serwer.c` | Server listens and accepts |
-| `read()`, `write()` | `klient.c`, `serwer.c` | Send binary structures |
-| `close()` | `klient.c`, `serwer.c` | Close connection |
-| `inet_pton()` | `klient.c` | Server IP address |
-| `INADDR_ANY` | `serwer.c` | Listen on all interfaces |
+| Function | Usage in project |
+|----------|------------------|
+| `socket(AF_INET, SOCK_STREAM, 0)` | Create TCP socket |
+| `connect()` | Client connects to server |
+| `bind()`, `listen()`, `accept()` | Server listens and accepts |
+| `read()`, `write()` | Send binary structures |
+| `close()` | Close connection |
+| `inet_pton()` | Server IP address |
+| `INADDR_ANY` | Listen on all interfaces |
 
-### 2. `fork()` — `procesy.c`
+### 2. `fork()`
 
 After `accept()`, the server creates a child process (`fork()`). The parent closes the client socket and returns to listening; the child handles the session and exits (`exit(0)`). `signal(SIGCHLD, SIG_IGN)` prevents zombie processes.
 
@@ -41,25 +41,25 @@ After `accept()`, the server creates a child process (`fork()`). The parent clos
 
 Because `fork()` gives each child its own memory copy, balances are stored in `data/accounts.txt`. `flock(LOCK_EX)` ensures only one process reads or writes at a time, keeping data consistent across child processes.
 
-### 4. `pthread_mutex` — `blokada.c`
+### 4. `pthread_mutex`
 
-The mutex pattern from `blokada.c` is analogous to `flock()` — both protect a shared resource from concurrent access.
+Mutexes protect a shared resource from concurrent access. The same idea applies here via `flock()` on the accounts file.
 
-### 5. Pipes — `potoki.c`
+### 5. Pipes
 
-Pipes (`pipe()`, `read()`, `write()`) illustrate IPC. This project uses TCP sockets and file I/O instead, but the idea of passing data between processes is the same.
+Pipes (`pipe()`, `read()`, `write()`) are a form of inter-process communication. This project uses TCP sockets and file I/O instead, but the idea of passing data between processes is the same.
 
-### 6. Semaphores — `semafor.c`
+### 6. Semaphores
 
 Semaphores (`sem_open`, `sem_wait`, `sem_post`) synchronize processes. `flock()` plays a similar role here for the accounts file.
 
-### 7. Message queues — `nadawca.c`, `odbiorca.c`
+### 7. Message queues
 
-`msgget`, `msgsnd`, `msgrcv` — alternative IPC. This project uses TCP sockets to pass structures between processes.
+Message queues (`msgget`, `msgsnd`, `msgrcv`) are an alternative IPC mechanism. This project uses TCP sockets to pass structures between processes.
 
-### 8. Threads — `watki.c`
+### 8. Threads
 
-`pthread_create`, `pthread_join` — thread creation. The locking mechanism is the same as used for cross-process file access.
+Threads (`pthread_create`, `pthread_join`) allow parallel execution within a process. The locking mechanism used for file access follows the same principle as mutex-based synchronization.
 
 ## Communication protocol (`src/common.h`)
 
